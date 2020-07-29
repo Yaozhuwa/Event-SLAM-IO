@@ -1,4 +1,5 @@
 #include "DataReader.h"
+#include "MyTools.h"
 
 using namespace std;
 using namespace cv;
@@ -23,18 +24,24 @@ void chamferDistance(Mat& src, Mat& dst){
 int main()
 {
     Mat ir,dvs;
-    DataReader dReader("../Capture-1595339559/", -1000000);
+    DataReader dReader("../data/Capture-1595339559/", -1000000);
     int count = 0;
+    TimeCost mClock1, mClock2, mClock3;
     while(dReader.getFrame(ir, dvs)){
         imshow("IR", ir);
         imshow("before", dvs*255);
         moveWindow("before", 500, 300);
         Mat dst;
+        mClock1.begin();
         eventFrameFilter(dvs, dst);
+        mClock1.end();
+        
         Mat chamfer;
         double max1;
-        
+
+        mClock2.begin();
         chamferDistance(dst, chamfer);
+        mClock2.end();
 
         minMaxIdx(chamfer, 0, &max1, 0, 0);
         chamfer /= max1;
@@ -43,8 +50,9 @@ int main()
         moveWindow("after filter0", 820, 300);
 
 
-
+        mClock3.begin();
         myMedian(dvs, dst, 7);
+        mClock3.end();
         imshow("myMedian", dst*255);
         moveWindow("myMedian", 1140, 300);
 
@@ -52,8 +60,14 @@ int main()
         if(char(waitKey(33))==27)
             break;
     }
+    cout<<"MyFilter Time Cost:\n";
+    mClock1.printInfo();
 
+    cout<<"Median Filter Time Cost:\n";
+    mClock2.printInfo();
 
+    cout<<"Chamfer Distance Time Cost:\n";
+    mClock3.printInfo();
 
     return 0;
 }
