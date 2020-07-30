@@ -1,8 +1,11 @@
 #include "DataReader.h"
 #include "MyTools.h"
+#include "FrameProcessor.h"
 
 using namespace std;
 using namespace cv;
+
+
 void eventFrameFilter(const Mat & src, Mat & dst, int kSize=7){
     dst = src.clone();
     boxFilter(dst, dst, -1, Size(kSize, kSize), Point(-1,-1), false);
@@ -16,9 +19,9 @@ void myMedian(const Mat & src, Mat & dst, int kSize)
     dst = dst & src;
 }
 
-void chamferDistance(Mat& src, Mat& dst){
+void cvDistanceTransform(Mat& src, Mat& dst){
     Mat temp = 1 - src;
-    distanceTransform(temp, dst, DIST_L2, 3, CV_32F);
+    cv::distanceTransform(temp, dst, DIST_L2, 3, CV_32F);
 }
 
 int main()
@@ -26,8 +29,10 @@ int main()
     Mat ir,dvs;
     DataReader dReader("../data/Capture-1595339559/", -1000000);
     int count = 0;
-    TimeCost mClock1, mClock2, mClock3;
+    bool flag=true;
+    TimeCost mClock1, mClock2, mClock3, mClock4;
     while(dReader.getFrame(ir, dvs)){
+        count++;
         imshow("IR", ir);
         imshow("before", dvs*255);
         moveWindow("before", 500, 300);
@@ -36,16 +41,27 @@ int main()
         eventFrameFilter(dvs, dst);
         mClock1.end();
         
-        Mat chamfer;
+        Mat dTransform, chamfer;
         double max1;
 
         mClock2.begin();
-        chamferDistance(dst, chamfer);
+        cvDistanceTransform(dst, dTransform);
         mClock2.end();
 
+        minMaxIdx(dTransform, 0, &max1, 0, 0);
+        dTransform /= max1;
+        imshow("cv::distanceTransform",dTransform);
+        cout<<"max0: "<<max1<<"; ";
+
+        mClock4.begin();
+        chamferDistance(dst, chamfer);
+        mClock4.end();
         minMaxIdx(chamfer, 0, &max1, 0, 0);
         chamfer /= max1;
-        imshow("chamfer",chamfer);
+        cout<<"max1: "<<max1<<endl;
+        imshow("chamfer distance", chamfer);
+
+
         imshow("after filter0", dst*255);
         moveWindow("after filter0", 820, 300);
 
@@ -56,7 +72,19 @@ int main()
         imshow("myMedian", dst*255);
         moveWindow("myMedian", 1140, 300);
 
+        if (count==18){
+            mClock4.reset();
+            mClock2.reset();
+        }
 
+        char a='a';
+        while(a!='p' && flag){
+            a=char(waitKey(33));
+            if(a==27){
+                flag = false;
+                break;
+            }
+        }
         if(char(waitKey(33))==27)
             break;
     }
@@ -64,10 +92,15 @@ int main()
     mClock1.printInfo();
 
     cout<<"Median Filter Time Cost:\n";
+    mClock3.printInfo();
+
+    cout<<"cv::distanceTransform Time Cost:\n";
     mClock2.printInfo();
 
-    cout<<"Chamfer Distance Time Cost:\n";
-    mClock3.printInfo();
+    cout<<"chamfer distance Time Cost:\n";
+    mClock4.printInfo();
+
+
 
     return 0;
 }

@@ -1,5 +1,8 @@
+#pragma
 #include<chrono>
 #include<iostream>
+
+
 class TimeCost{
 public:
     TimeCost();
@@ -11,6 +14,8 @@ public:
     double getSumTime(){return sumTime;}
     double getCount(){return count;}
     void printInfo();
+    void reset();
+
 private:
     std::chrono::steady_clock::time_point beginTimePoint;
     double maxTimeCost;
@@ -43,4 +48,13 @@ void TimeCost::printInfo(){
     std::cout<<"Average: "<<getAverage()<<" us, ";
     std::cout<<"Min: "<<minTimeCost<<" us, ";
     std::cout<<"Max: "<<maxTimeCost<<" us.\n";
+}
+
+void TimeCost::reset()
+{
+    maxTimeCost = 0;
+    minTimeCost = -1;
+    sumTime = 0;
+    count = 0;
+    beginTimePoint = std::chrono::steady_clock::now();
 }
