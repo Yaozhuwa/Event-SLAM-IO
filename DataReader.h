@@ -15,6 +15,14 @@ class DataReader
 public:
     DataReader(const std::string &folder, const int64_t &_mistime);
     ~DataReader(){eventReader.close();d435Reader.close();}
+    
+    /**
+     * 
+     * 
+     * 
+     * 
+     * 
+    */
     bool getFrame(cv::Mat &d435Image, cv::Mat &dvsImage);
     bool getD435FrameTS(cv::Mat &dstImage, int64_t *timeStamp);
     bool getEventFrame(cv::Mat &dstImage, const int64_t &startTS, const int64_t &endTS);

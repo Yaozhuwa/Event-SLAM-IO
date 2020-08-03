@@ -36,3 +36,7 @@
 /data/*
 
 .vscode
+
+.idea
+
+/cmake-build-debug/
