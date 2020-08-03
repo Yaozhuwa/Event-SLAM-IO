@@ -35,7 +35,10 @@ void testEigen()
     // b = a;
     // b(0,0)=0;
     // cout<<a;
-    Camera c;
+    Mat a = Mat(5,1,CV_32FC1, Scalar(1));
+    Mat b = Mat(3,3, CV_32FC1, Scalar(0));
+    setIdentity(b);
+    Camera c(240, 320, b, a);
     c.print();
 
 }
