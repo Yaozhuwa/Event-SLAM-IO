@@ -43,9 +43,45 @@ void testEigen()
 
 }
 
+
+void testCamera(){
+    FileStorage fs("../CalibInfo.xml", FileStorage::READ);
+    Mat intrinsics_matrix_loaded, distortion_coeffs_loaded;
+    fs["leftIntrinsicMat"]>>intrinsics_matrix_loaded;
+    fs["leftDistCoeffs"]>>distortion_coeffs_loaded;
+    fs.release();
+
+    Camera DVS(264, 320, intrinsics_matrix_loaded, distortion_coeffs_loaded);
+
+    // vector<string> image_paths;
+    // string prefix = "../data/images/img";
+    // string postfix = ".png";
+    // int name_start = 0;
+    // int name_last = 20;
+    // for(int i=name_start; i<=name_last; i++){
+    //     image_paths.push_back(prefix+to_string(i)+postfix);
+    // }
+    DVS.init();
+    DVS.print();
+    // for (int i=0; i<=20;i++){
+    //     Mat img = imread(image_paths[i], IMREAD_GRAYSCALE);
+    //     cout<<image_paths[i]<<endl;
+    //     Mat rectified;
+    //     DVS.print();
+    //     DVS.undistortion(img, rectified);
+    //     imshow("before", img);
+    //     imshow("after", rectified);
+    //     waitKey(50);
+    // }
+    // Mat img = imread("../data/images/img0.png", 1);
+    // imshow("before", img);
+    waitKey(0);
+    
+}
 int main()
 {
-    testEigen();
+    testCamera();
+    // testEigen();
     // Mat ir,dvs;
     // DataReader dReader("../data/Capture-1595339559/", -1000000);
     // int count = 0;
