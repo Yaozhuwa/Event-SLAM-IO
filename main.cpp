@@ -1,10 +1,13 @@
 #include "DataReader.h"
 #include "MyTools.h"
 #include "FrameProcessor.h"
+#include "tools.h"
 #include "Camera.h"
+// #include "CameraTest.h"
 #include <Eigen/Dense>
 using namespace std;
 using namespace cv;
+using namespace Eigen;
 
 
 void eventFrameFilter(const Mat & src, Mat & dst, int kSize=7){
@@ -35,6 +38,7 @@ void testEigen()
     // b = a;
     // b(0,0)=0;
     // cout<<a;
+    // print(1,2,3,4);
     Mat a = Mat(5,1,CV_32FC1, Scalar(1));
     Mat b = Mat(3,3, CV_32FC1, Scalar(0));
     setIdentity(b);
@@ -44,43 +48,50 @@ void testEigen()
 }
 
 
-void testCamera(){
+void testBug(){
     FileStorage fs("../CalibInfo.xml", FileStorage::READ);
     Mat intrinsics_matrix_loaded, distortion_coeffs_loaded;
     fs["leftIntrinsicMat"]>>intrinsics_matrix_loaded;
     fs["leftDistCoeffs"]>>distortion_coeffs_loaded;
     fs.release();
 
+    vector<string> image_paths;
+    string prefix = "../data/images/img";
+    string postfix = ".png";
+    int name_start = 0;
+    int name_last = 20;
+    for(int i=name_start; i<=name_last; i++){
+        image_paths.push_back(prefix+to_string(i)+postfix);
+    }
+
+    print(1,2,3,4);
+
+    // Eigen::Matrix3f matrix;
+    // Eigen::Matrix<float, 5, 1> dist;
+    // mat2eigen33f(intrinsics_matrix_loaded, matrix);
+    // mat2eigen5f(distortion_coeffs_loaded, dist);
+    // cout<<matrix<<endl;
+    // cout<<dist<<endl;
     Camera DVS(264, 320, intrinsics_matrix_loaded, distortion_coeffs_loaded);
 
-    // vector<string> image_paths;
-    // string prefix = "../data/images/img";
-    // string postfix = ".png";
-    // int name_start = 0;
-    // int name_last = 20;
-    // for(int i=name_start; i<=name_last; i++){
-    //     image_paths.push_back(prefix+to_string(i)+postfix);
-    // }
-    DVS.init();
-    DVS.print();
-    // for (int i=0; i<=20;i++){
-    //     Mat img = imread(image_paths[i], IMREAD_GRAYSCALE);
-    //     cout<<image_paths[i]<<endl;
-    //     Mat rectified;
-    //     DVS.print();
-    //     DVS.undistortion(img, rectified);
-    //     imshow("before", img);
-    //     imshow("after", rectified);
-    //     waitKey(50);
-    // }
-    // Mat img = imread("../data/images/img0.png", 1);
-    // imshow("before", img);
+    for (int i=0; i<=20;i++){
+        Mat img = imread(image_paths[i], IMREAD_GRAYSCALE);
+        cout<<image_paths[i]<<endl;
+        Mat rectified;
+        DVS.undistortion(img, rectified);
+        imshow("before", img);
+        imshow("after", rectified);
+        waitKey(0);
+    }
+
+    // DVS.print();
+
     waitKey(0);
-    
+
 }
 int main()
 {
-    testCamera();
+    testBug();
     // testEigen();
     // Mat ir,dvs;
     // DataReader dReader("../data/Capture-1595339559/", -1000000);

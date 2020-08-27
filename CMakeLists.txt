@@ -7,6 +7,9 @@ project(DataReader)
 set(SOURCES
     main.cpp
     DataReader.cpp
+    Camera.cpp
+    tools.cpp
+    MyTools.cpp
 )
 
 find_package(OpenCV REQUIRED)
