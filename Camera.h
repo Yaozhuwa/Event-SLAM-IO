@@ -6,30 +6,33 @@
 #include <opencv2/core/eigen.hpp>
 
 
-typedef Eigen::Matrix<float, 5, 1> Vector5f;
+typedef Eigen::Matrix<float, 5, 1> RowVector5f;
 
 class Camera
 {
 public:
     Camera(const int &row, const int &col,
-           const Eigen::Matrix3f &m=Eigen::Matrix3f::Identity(),
-           const Vector5f &distortionCoeffs=Eigen::VectorXf::Zero(5));
+           const Eigen::Matrix3f &intrinsicMatrix=Eigen::Matrix3f::Identity(),
+           const RowVector5f &distortionCoeffs=Eigen::RowVectorXf::Zero(5));
     Camera(const int &row, const int &col,
-           const cv::Mat &m,
+           const cv::Mat &mintrinsicMat,
            const cv::Mat &distortionCoeffs);
     void initCameraMatrix(const float &fx,const float &fy, const float &cx, const float &cy);
+    void ImgPoint2NSP(const Eigen::Vector2f &imgPoint, Eigen::Vector3f *nspPoint);
+    void ImgPoint2P3D(const Eigen::Vector2f &imgPoint, Eigen::Vector3f *point3D, const float &depth=1);
+    
     void point3D2imgPoint(Eigen::Vector3f &point3D, Eigen::Vector2f *imagePoint);
     void imgPoint2NSP(const Eigen::Vector2f &imgPoint, Eigen::Vector3f *NSP);
     void nsp2imgPoint(const Eigen::Vector3f &nsp, Eigen::Vector2f *imgPoint);
     void nspTo3DPoint(const Eigen::Vector3f &nsp, const float &depth, Eigen::Vector3f *point3D);
     void undistortion(cv::Mat &src, cv::Mat &dst, int interpolation=cv::INTER_NEAREST);
-    void print();
+    void cameraInfo();
 
     const int rows;
     const int cols;
 private:
     Eigen::Matrix3f cameraMatrix;
-    Vector5f distCoeffs;
+    RowVector5f distCoeffs;
     cv::Mat map1;
     cv::Mat map2;
 };

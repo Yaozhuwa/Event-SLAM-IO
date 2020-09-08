@@ -24,6 +24,11 @@ private:
     int count;
 };
 
-// 变长参数函数模板声明
-template<typename...T>  
-void print(T... val);
+void print();
+
+template<typename Head, typename...Tail>
+void print(Head head, Tail... tail)
+{    
+	std::cout<<head<<" ";
+	print(tail...);
+}

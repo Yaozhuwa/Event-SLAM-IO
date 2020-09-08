@@ -3,7 +3,6 @@
 #include "FrameProcessor.h"
 #include "tools.h"
 #include "Camera.h"
-// #include "CameraTest.h"
 #include <Eigen/Dense>
 using namespace std;
 using namespace cv;
@@ -43,7 +42,7 @@ void testEigen()
     Mat b = Mat(3,3, CV_32FC1, Scalar(0));
     setIdentity(b);
     Camera c(240, 320, b, a);
-    c.print();
+    c.cameraInfo();
 
 }
 
@@ -83,8 +82,6 @@ void testBug(){
         imshow("after", rectified);
         waitKey(0);
     }
-
-    // DVS.print();
 
     waitKey(0);
 

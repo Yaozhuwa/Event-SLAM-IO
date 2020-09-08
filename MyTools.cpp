@@ -39,10 +39,3 @@ void TimeCost::reset()
 void print(void){
     std::cout<<std::endl;
 }
-
-template<typename Head, typename...Tail>
-void print(Head head, Tail... tail)
-{    
-	std::cout<<head<<" ";
-	print(tail...);
-}

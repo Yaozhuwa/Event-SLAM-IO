@@ -37,15 +37,14 @@ void Camera::nspTo3DPoint(const Eigen::Vector3f &nsp, const float &depth, Eigen:
     *point3D = nsp * depth;
 }
 
-// ToDo:eigen2cv 函数实现替换
 Camera::Camera(const int &row, const int &col,
-               const Eigen::Matrix3f &intrinsicMat,
-               const Vector5f &distortionCoeffs):rows(row), cols(col)
+               const Eigen::Matrix3f &intrinsicMatrix,
+               const RowVector5f &distortionCoeffs):rows(row), cols(col)
 {
-    cameraMatrix = intrinsicMat;
+    cameraMatrix = intrinsicMatrix;
     distCoeffs = distortionCoeffs;
     Mat cameraMat, distortionMat;
-    eigen2cv(intrinsicMat, cameraMat);
+    eigen2cv(intrinsicMatrix, cameraMat);
     eigen2cv(distortionCoeffs, distortionMat);
     cv::initUndistortRectifyMap(cameraMat, distortionMat, Mat(), cameraMat, cv::Size(cols, rows), CV_16SC2, map1, map2);
 }
@@ -55,18 +54,24 @@ Camera::Camera(const int &row, const int &col,
                const cv::Mat &distortionCoeffs) :rows(row), cols(col)
 {
     cv::initUndistortRectifyMap(intrinsicMat, distortionCoeffs, noArray(), intrinsicMat, cv::Size(cols, rows), CV_16SC2, map1, map2);
-    mat2eigen33f(intrinsicMat, cameraMatrix);
-    mat2eigen5f(distortionCoeffs, distCoeffs);
-    // cv2eigen(intrinsicMat, cameraMatrix);
-    // cv2eigen(distortionCoeffs, distCoeffs);
+    // mat2eigen33f(intrinsicMat, cameraMatrix);
+    // mat2eigen5f(distortionCoeffs, distCoeffs);
+    cv2eigen(intrinsicMat, cameraMatrix);
+    cv2eigen(distortionCoeffs, distCoeffs);
+        
 }
 
 
-void Camera::print(){
+void Camera::cameraInfo(){
     std::cout<<"[Camera Info]\n";
     std::cout<<"width: "<<cols<<", height: "<<rows<<std::endl;
     std::cout<<cameraMatrix<<std::endl;
     std::cout<<distCoeffs<<std::endl;
     std::cout<<"[Info end]"<<std::endl;
 
+}
+
+void Camera::ImgPoint2P3D(const Eigen::Vector2f &imgPoint, Eigen::Vector3f *point3D, const float &depth)
+{
+    
 }
