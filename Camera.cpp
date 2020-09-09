@@ -117,7 +117,7 @@ void Camera::NSP2ImgPoint(const Eigen::Vector3f &pointNSP, Eigen::Vector2f *imgP
     }
 }
 
-void Camera::P3D2ImgPoint(const Eigen::Vector3f &point3D, Eigen::Vector2f *imgPoint, bool distortion=true){
+void Camera::P3D2ImgPoint(const Eigen::Vector3f &point3D, Eigen::Vector2f *imgPoint, bool distortion){
     if (!distortion){
         *imgPoint = (cameraMatrix * point3D).head<2>()/point3D(2);
     }

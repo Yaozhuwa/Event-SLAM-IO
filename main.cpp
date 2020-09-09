@@ -65,12 +65,6 @@ void testBug(){
 
     print(1,2,3,4);
 
-    // Eigen::Matrix3f matrix;
-    // Eigen::Matrix<float, 5, 1> dist;
-    // mat2eigen33f(intrinsics_matrix_loaded, matrix);
-    // mat2eigen5f(distortion_coeffs_loaded, dist);
-    // cout<<matrix<<endl;
-    // cout<<dist<<endl;
     Camera DVS(264, 320, intrinsics_matrix_loaded, distortion_coeffs_loaded);
 
     for (int i=0; i<=20;i++){
