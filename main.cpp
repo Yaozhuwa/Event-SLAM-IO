@@ -1,9 +1,9 @@
+#include <Eigen/Dense>
 #include "DataReader.h"
 #include "MyTools.h"
 #include "FrameProcessor.h"
 #include "tools.h"
 #include "Camera.h"
-#include <Eigen/Dense>
 using namespace std;
 using namespace cv;
 using namespace Eigen;

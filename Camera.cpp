@@ -11,38 +11,12 @@ void Camera::undistortion(Mat &src, Mat &dst, int interpolation)
     cv::remap(src, dst, map1, map2, interpolation);
 }
 
-void Camera::initCameraMatrix(const float &fx, const float &fy, const float &cx, const float &cy) {
-    cameraMatrix(0, 0) = fx;
-    cameraMatrix(1, 1) = fy;
-    cameraMatrix(0, 2) = cx;
-    cameraMatrix(1, 2) = cy;
-}
-
-void Camera::imgPoint2NSP(const Eigen::Vector2f &imgPoint, Eigen::Vector3f *NSP) {
-    (*NSP)(0) = (imgPoint(0)-cameraMatrix(0, 2)) / cameraMatrix(0, 0);
-    (*NSP)(1) = (imgPoint(1)-cameraMatrix(1, 2)) / cameraMatrix(1, 1);
-    (*NSP)(2) = 1;
-}
-
-void Camera::nsp2imgPoint(const Eigen::Vector3f &nsp, Eigen::Vector2f *imgPoint) {
-    *imgPoint = (cameraMatrix*nsp).head<2>();
-}
-
-void Camera::point3D2imgPoint(Eigen::Vector3f &point3D, Eigen::Vector2f *imagePoint) {
-    Eigen::Vector3f temp = cameraMatrix * point3D;
-    *imagePoint = temp.head<2>() / temp(2);
-}
-
-void Camera::nspTo3DPoint(const Eigen::Vector3f &nsp, const float &depth, Eigen::Vector3f *point3D) {
-    *point3D = nsp * depth;
-}
-
 Camera::Camera(const int &row, const int &col,
                const Eigen::Matrix3f &intrinsicMatrix,
                const RowVector5f &distortionCoeffs):rows(row), cols(col)
 {
     cameraMatrix = intrinsicMatrix;
-    distCoeffs = distortionCoeffs;
+    distMatrix = distortionCoeffs;
     Mat cameraMat, distortionMat;
     eigen2cv(intrinsicMatrix, cameraMat);
     eigen2cv(distortionCoeffs, distortionMat);
@@ -55,9 +29,12 @@ Camera::Camera(const int &row, const int &col,
 {
     cv::initUndistortRectifyMap(intrinsicMatrix, distortionCoeffs, noArray(), intrinsicMatrix, cv::Size(cols, rows), CV_16SC2, map1, map2);
     // mat2eigen33f(intrinsicMat, cameraMatrix);
-    // mat2eigen5f(distortionCoeffs, distCoeffs);
+    // mat2eigen5f(distortionCoeffs, distMatrix);
     cv2eigen(intrinsicMatrix, cameraMatrix);
-    cv2eigen(distortionCoeffs, distCoeffs);
+    cv2eigen(distortionCoeffs, distMatrix);
+
+    NSPMapX = MatrixXf::Zero(row, col);
+    NSPMapY = MatrixXf::Zero(row, col);
         
 }
 
@@ -66,12 +43,93 @@ void Camera::cameraInfo(){
     std::cout<<"[Camera Info]\n";
     std::cout<<"width: "<<cols<<", height: "<<rows<<std::endl;
     std::cout<<cameraMatrix<<std::endl;
-    std::cout<<distCoeffs<<std::endl;
+    std::cout<<distMatrix<<std::endl;
     std::cout<<"[Info end]"<<std::endl;
 
 }
 
-void Camera::ImgPoint2P3D(const Eigen::Vector2f &imgPoint, Eigen::Vector3f *point3D, const float &depth)
+
+void Camera::InitNSPMap()
 {
-    
+    vector<Point2f> pointsVec, dstPointsVec;
+    for (int i=0; i<rows; ++i){
+        for (int j=0; j<cols; ++j){
+            pointsVec.push_back(Point2f(j ,i));
+        }
+    }
+    Mat cameraMat, distMat;
+    eigen2cv(cameraMatrix, cameraMat);
+    eigen2cv(distMatrix, distMat);
+
+    undistortPoints(pointsVec, dstPointsVec, cameraMat, distMat);
+
+    for (int row=0; row<rows; ++row){
+        for (int col=0; col<cols; ++col){
+            NSPMapX(row, col) = dstPointsVec[row*rows+col].x;
+            NSPMapY(row, col) = dstPointsVec[row*rows+col].y;
+        }
+    }
+
+}
+
+
+void Camera::ImgPoint2NSP(const Eigen::Vector2f &imgPoint, Eigen::Vector3f *nspPoint, bool distortion){
+    //if distortion==false
+    if (!distortion){
+        (*nspPoint)(0) = (imgPoint(0)-cameraMatrix(0, 2)) / cameraMatrix(0, 0);
+        (*nspPoint)(1) = (imgPoint(1)-cameraMatrix(1, 2)) / cameraMatrix(1, 1);
+        (*nspPoint)(2) = 1;
+    }
+    else{
+        (*nspPoint)(0) = NSPMapX(imgPoint(1), imgPoint(0));
+        (*nspPoint)(1) = NSPMapY(imgPoint(1), imgPoint(0));
+        (*nspPoint)(2) = 1;
+    }
+}
+
+void Camera::ImgPoint2P3D(const Eigen::Vector2f &imgPoint, Eigen::Vector3f *point3D, const float &depth, bool distortion){
+    ImgPoint2NSP(imgPoint, point3D, distortion);
+    *point3D *= depth;
+}
+
+void Camera::P3D2NSP(const Eigen::Vector3f &point3D, Eigen::Vector3f *pointNSP){
+    *pointNSP = point3D/point3D(2);
+}
+
+void Camera::NSP2P3D(const Eigen::Vector3f &pointNSP, Eigen::Vector3f *point3D, const float &depth){
+    *point3D = pointNSP * depth;
+}
+
+void Camera::NSP2ImgPoint(const Eigen::Vector3f &pointNSP, Eigen::Vector2f *imgPoint, bool distortion){
+    if (!distortion){
+        *imgPoint = (cameraMatrix * pointNSP).head<2>();
+    }
+    else{
+        Mat cameraMat, distMat, pointMat;
+        vector<Point2f> imgPointsVec;
+        eigen2cv(cameraMatrix, cameraMat);
+        eigen2cv(distMatrix, distMat);
+        eigen2cv(pointNSP, pointMat);
+
+        projectPoints(pointMat, noArray(), noArray(), cameraMat, distMat, imgPointsVec);
+        (*imgPoint)[0] = imgPointsVec[0].x;
+        (*imgPoint)[1] = imgPointsVec[0].y;
+    }
+}
+
+void Camera::P3D2ImgPoint(const Eigen::Vector3f &point3D, Eigen::Vector2f *imgPoint, bool distortion=true){
+    if (!distortion){
+        *imgPoint = (cameraMatrix * point3D).head<2>()/point3D(2);
+    }
+    else{
+        Mat cameraMat, distMat, pointMat;
+        vector<Point2f> imgPointsVec;
+        eigen2cv(cameraMatrix, cameraMat);
+        eigen2cv(distMatrix, distMat);
+        eigen2cv(point3D, pointMat);
+
+        projectPoints(pointMat, noArray(), noArray(), cameraMat, distMat, imgPointsVec);
+        (*imgPoint)[0] = imgPointsVec[0].x;
+        (*imgPoint)[1] = imgPointsVec[0].y;
+    }
 }
