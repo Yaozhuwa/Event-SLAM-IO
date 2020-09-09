@@ -6,17 +6,26 @@
 #include <opencv2/core/eigen.hpp>
 
 
-typedef Eigen::Matrix<float, 5, 1> RowVector5f;
+typedef Eigen::Matrix<float, 1, 5> RowVector5f;
 
 class Camera
 {
 public:
+    /**
+     * Class Camera's constructor function
+     * @param   row                 [in]    Camera's row size
+     * @param   col                 [in]    Camera's col size
+     * @param   intrinsicMatrix     [in]    Camera's intrinsic Matrix
+     * @param   distortionCoeffs    [in]    Camera's distortion coefficients
+     * @return  void
+    */
     Camera(const int &row, const int &col,
            const Eigen::Matrix3f &intrinsicMatrix=Eigen::Matrix3f::Identity(),
            const RowVector5f &distortionCoeffs=Eigen::RowVectorXf::Zero(5));
     Camera(const int &row, const int &col,
-           const cv::Mat &mintrinsicMat,
+           const cv::Mat &intrinsicMatrix,
            const cv::Mat &distortionCoeffs);
+           
     void initCameraMatrix(const float &fx,const float &fy, const float &cx, const float &cy);
     void ImgPoint2NSP(const Eigen::Vector2f &imgPoint, Eigen::Vector3f *nspPoint);
     void ImgPoint2P3D(const Eigen::Vector2f &imgPoint, Eigen::Vector3f *point3D, const float &depth=1);

@@ -50,13 +50,13 @@ Camera::Camera(const int &row, const int &col,
 }
 
 Camera::Camera(const int &row, const int &col,
-               const cv::Mat &intrinsicMat,
+               const cv::Mat &intrinsicMatrix,
                const cv::Mat &distortionCoeffs) :rows(row), cols(col)
 {
-    cv::initUndistortRectifyMap(intrinsicMat, distortionCoeffs, noArray(), intrinsicMat, cv::Size(cols, rows), CV_16SC2, map1, map2);
+    cv::initUndistortRectifyMap(intrinsicMatrix, distortionCoeffs, noArray(), intrinsicMatrix, cv::Size(cols, rows), CV_16SC2, map1, map2);
     // mat2eigen33f(intrinsicMat, cameraMatrix);
     // mat2eigen5f(distortionCoeffs, distCoeffs);
-    cv2eigen(intrinsicMat, cameraMatrix);
+    cv2eigen(intrinsicMatrix, cameraMatrix);
     cv2eigen(distortionCoeffs, distCoeffs);
         
 }
