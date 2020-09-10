@@ -1,5 +1,4 @@
 #include "Camera.h"
-#include "tools.h"
 
 using namespace cv;
 using namespace Eigen;
@@ -28,8 +27,6 @@ Camera::Camera(const int &row, const int &col,
                const cv::Mat &distortionCoeffs) :rows(row), cols(col)
 {
     cv::initUndistortRectifyMap(intrinsicMatrix, distortionCoeffs, noArray(), intrinsicMatrix, cv::Size(cols, rows), CV_16SC2, map1, map2);
-    // mat2eigen33f(intrinsicMat, cameraMatrix);
-    // mat2eigen5f(distortionCoeffs, distMatrix);
     cv2eigen(intrinsicMatrix, cameraMatrix);
     cv2eigen(distortionCoeffs, distMatrix);
 

@@ -1,4 +1,4 @@
-#pragma
+#pragma once
 #include<chrono>
 #include<iostream>
 
@@ -24,8 +24,15 @@ private:
     int count;
 };
 
+
+/**
+ * print function C++ implementation
+*/
 void print();
 
+/**
+ * print function C++ implementation
+*/
 template<typename Head, typename...Tail>
 void print(Head head, Tail... tail)
 {    

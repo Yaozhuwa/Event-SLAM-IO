@@ -1,3 +1,11 @@
+/*
+ * @Author: yaozuye
+ * @Date: 2020-07-29 23:02:16
+ * @LastEditTime: 2020-09-10 16:14:10
+ * @LastEditors: Please set LastEditors
+ * @Description: DataReader Class for data reading.
+ * @FilePath: /Event-SLAM-IO/DataReader.cpp
+ */
 #include "DataReader.h"
 
 using namespace std;
@@ -12,7 +20,7 @@ eventFrameSize(320, 264){
     mistime = _mistime;
 }
 
-//获取时间戳内的事件，前闭后开。
+
 bool::DataReader::getEventFrame(Mat &dstImage, const int64_t &startTS, const int64_t &endTS)
 {
     if(eventReader.eof()){

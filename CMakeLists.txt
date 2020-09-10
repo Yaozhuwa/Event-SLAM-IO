@@ -8,7 +8,7 @@ set(SOURCES
     main.cpp
     DataReader.cpp
     Camera.cpp
-    tools.cpp
+    FrameProcessor.cpp
     MyTools.cpp
 )
 

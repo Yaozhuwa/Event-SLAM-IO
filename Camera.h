@@ -87,6 +87,7 @@ public:
     */
     void P3D2ImgPoint(const Eigen::Vector3f &point3D, Eigen::Vector2f *imgPoint, bool distortion=true);
 
+    
     void undistortion(cv::Mat &src, cv::Mat &dst, int interpolation=cv::INTER_NEAREST);
 
     /**
