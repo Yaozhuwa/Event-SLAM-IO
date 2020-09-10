@@ -1,7 +1,7 @@
 /*
  * @Author: yyz
  * @Date: 2020-09-10 16:48:50
- * @LastEditTime: 2020-09-10 17:13:05
+ * @LastEditTime: 2020-09-10 21:46:25
  * @LastEditors: Please set LastEditors
  * @Description: Only for module test
  * @FilePath: /Event-SLAM-IO/test.h
@@ -43,14 +43,14 @@ void testDataReader(){
         minMaxIdx(dTransform, 0, &max1, 0, 0);
         dTransform /= max1;
         imshow("cv::distanceTransform",dTransform);
-        cout<<"max0: "<<max1<<"; ";
+        // cout<<"max0: "<<max1<<"; ";
 
         mClock4.begin();
         chamferDistance(dst, chamfer);
         mClock4.end();
         minMaxIdx(chamfer, 0, &max1, 0, 0);
         chamfer /= max1;
-        cout<<"max1: "<<max1<<endl;
+        // cout<<"max1: "<<max1<<endl;
         imshow("chamfer distance", chamfer);
 
 
@@ -127,3 +127,65 @@ void testCamera(){
 }
 
 
+
+void testCamera2(){
+    //load the calibration infomation.
+    FileStorage fs("../CalibInfo.xml", FileStorage::READ);
+    Mat intrinsics_matrix_loaded, distortion_coeffs_loaded;
+    fs["leftIntrinsicMat"]>>intrinsics_matrix_loaded;
+    fs["leftDistCoeffs"]>>distortion_coeffs_loaded;
+    fs.release();
+
+    vector<string> image_paths;
+    string prefix = "../data/images/img";
+    string postfix = ".png";
+    int name_start = 0;
+    int name_last = 20;
+    for(int i=name_start; i<=name_last; i++){
+        image_paths.push_back(prefix+to_string(i)+postfix);
+    }
+
+    Camera DVS(264, 320, intrinsics_matrix_loaded, distortion_coeffs_loaded);
+    DVS.InitNSPMap();
+
+    for (int i=0; i<=20;i++){
+        Mat img = imread(image_paths[i], IMREAD_GRAYSCALE);
+        // cout<<image_paths[i]<<endl;
+
+
+        Mat rectified;
+        DVS.undistortion(img, rectified);
+
+        Mat myRectify(264,320, CV_8UC1, Scalar(255));
+
+        print("begin to transfer");
+        for (int i=0;i<264;++i){
+            for(int j=0;j<320;++j){
+                Vector3f nsp;
+                DVS.ImgPoint2NSP(Vector2f(j,i), &nsp, true);
+                Vector2f dstPoint;
+                print("End ImgPoint2NSP", i*264+j);
+                DVS.NSP2ImgPoint(nsp, &dstPoint, true);
+                print("End NSP2ImgPoint", i*264+j);
+
+                int row = int(dstPoint[1]);
+                int col = int(dstPoint[0]);
+                if (row<0||row>=264||col<0||col>=320){
+                    continue;
+                }
+                else{
+                    myRectify.at<uchar>(i,j) = img.at<uchar>(row,col);
+                    print(i,j,row,col,int(img.at<uchar>(row,col)));
+                }
+
+            }
+        }
+
+        imshow("before", img);
+        imshow("cv::Rectify", rectified);
+        imshow("yyz::Rectify test", myRectify);
+        waitKey(0);
+    }
+    waitKey(0);
+
+}

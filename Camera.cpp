@@ -107,8 +107,10 @@ void Camera::NSP2ImgPoint(const Eigen::Vector3f &pointNSP, Eigen::Vector2f *imgP
         eigen2cv(cameraMatrix, cameraMat);
         eigen2cv(distMatrix, distMat);
         eigen2cv(pointNSP, pointMat);
+        Mat rVec(3, 1, cv::DataType<double>::type, Scalar(0));
+        Mat tVec(3, 1, cv::DataType<double>::type, Scalar(0));
 
-        projectPoints(pointMat, noArray(), noArray(), cameraMat, distMat, imgPointsVec);
+        projectPoints(pointMat, rVec, tVec, cameraMat, distMat, imgPointsVec);
         (*imgPoint)[0] = imgPointsVec[0].x;
         (*imgPoint)[1] = imgPointsVec[0].y;
     }
