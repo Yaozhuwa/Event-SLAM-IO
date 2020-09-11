@@ -1,7 +1,7 @@
 /*
  * @Author: yyz
  * @Date: 2020-09-10 16:48:50
- * @LastEditTime: 2020-09-11 15:01:40
+ * @LastEditTime: 2020-09-11 15:20:31
  * @LastEditors: Please set LastEditors
  * @Description: Only for module test
  * @FilePath: /Event-SLAM-IO/test.h
@@ -146,12 +146,10 @@ void testCamera2(){
     }
 
     Camera DVS(264, 320, intrinsics_matrix_loaded, distortion_coeffs_loaded);
-    DVS.InitNSPMap();
 
     for (int i=0; i<=20;i++){
         Mat img = imread(image_paths[i], IMREAD_GRAYSCALE);
         // cout<<image_paths[i]<<endl;
-
 
         Mat rectified;
         DVS.undistortion(img, rectified);

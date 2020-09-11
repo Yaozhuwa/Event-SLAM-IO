@@ -1,13 +1,12 @@
 /*
  * @Author: yyz
  * @Date: 2020-09-09 10:58:02
- * @LastEditTime: 2020-09-11 15:02:35
+ * @LastEditTime: 2020-09-11 15:27:48
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /Event-SLAM-IO/Camera.cpp
  */
 #include "Camera.h"
-#include "MyTools.h"
 using namespace cv;
 using namespace Eigen;
 using namespace std;
@@ -18,7 +17,7 @@ void Camera::undistortion(Mat &src, Mat &dst, int interpolation)
     cv::remap(src, dst, map1, map2, interpolation);
 }
 
-Camera::Camera(const int &row, const int &col,
+Camera::Camera(int row, int col,
                const Eigen::Matrix3f &intrinsicMatrix,
                const RowVector5f &distortionCoeffs):rows(row), cols(col)
 {
@@ -28,9 +27,13 @@ Camera::Camera(const int &row, const int &col,
     eigen2cv(intrinsicMatrix, cameraMat);
     eigen2cv(distortionCoeffs, distortionMat);
     cv::initUndistortRectifyMap(cameraMat, distortionMat, Mat(), cameraMat, cv::Size(cols, rows), CV_16SC2, map1, map2);
+
+    NSPMapX = MatrixXf::Zero(row, col);
+    NSPMapY = MatrixXf::Zero(row, col);
+    InitNSPMap();
 }
 
-Camera::Camera(const int &row, const int &col,
+Camera::Camera(int row, int col,
                const cv::Mat &intrinsicMatrix,
                const cv::Mat &distortionCoeffs) :rows(row), cols(col)
 {
@@ -40,14 +43,17 @@ Camera::Camera(const int &row, const int &col,
 
     NSPMapX = MatrixXf::Zero(row, col);
     NSPMapY = MatrixXf::Zero(row, col);
+    InitNSPMap();
         
 }
 
 
-void Camera::cameraInfo(){
+void Camera::CameraInfo(){
     std::cout<<"[Camera Info]\n";
     std::cout<<"width: "<<cols<<", height: "<<rows<<std::endl;
+    std::cout<<"Camera Intrinsic:\n";
     std::cout<<cameraMatrix<<std::endl;
+    std::cout<<"Dsitortion\n";
     std::cout<<distMatrix<<std::endl;
     std::cout<<"[Info end]"<<std::endl;
 
@@ -92,7 +98,7 @@ void Camera::ImgPoint2NSP(const Eigen::Vector2f &imgPoint, Eigen::Vector3f *nspP
     }
 }
 
-void Camera::ImgPoint2P3D(const Eigen::Vector2f &imgPoint, Eigen::Vector3f *point3D, const float &depth, bool distortion){
+void Camera::ImgPoint2P3D(const Eigen::Vector2f &imgPoint, Eigen::Vector3f *point3D, float depth, bool distortion){
     ImgPoint2NSP(imgPoint, point3D, distortion);
     *point3D *= depth;
 }
@@ -101,7 +107,7 @@ void Camera::P3D2NSP(const Eigen::Vector3f &point3D, Eigen::Vector3f *pointNSP){
     *pointNSP = point3D/point3D(2);
 }
 
-void Camera::NSP2P3D(const Eigen::Vector3f &pointNSP, Eigen::Vector3f *point3D, const float &depth){
+void Camera::NSP2P3D(const Eigen::Vector3f &pointNSP, Eigen::Vector3f *point3D, float depth){
     *point3D = pointNSP * depth;
 }
 

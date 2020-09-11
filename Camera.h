@@ -20,21 +20,17 @@ public:
      * @param   distortionCoeffs    [in]    Camera's distortion coefficients
      * @return  void
     */
-    Camera(const int &row, const int &col,
+    Camera(int row, int col,
            const Eigen::Matrix3f &intrinsicMatrix=Eigen::Matrix3f::Identity(),
            const RowVector5f &distortionCoeffs=Eigen::RowVectorXf::Zero(5));
     
-    Camera(const int &row, const int &col,
+    Camera(int row, int col,
            const cv::Mat &intrinsicMatrix,
            const cv::Mat &distortionCoeffs);
 
-    /**
-     * Initialize NSPMapX, NSPMapY which Computes the ideal point coordinates (in normalized sensing plane, NSP) from the observed point coordinates.
-    */
-    void InitNSPMap();
     
     /**
-     * Compute the point in nsp from a point in image plane. Make sure to call function InitNSPMap before this func if the param:distortion is true
+     * Compute the point in nsp from a point in image plane.
      * @param   imgPoint    [in]    point in image plane: Vector2f(x,y) (i.e., Vector2f(col,row))
      * @param   nspPoint    [out]   the output point in NSP
      * @param   distortion  [in]    wether to use the distortion model, default is true.
@@ -43,14 +39,14 @@ public:
     void ImgPoint2NSP(const Eigen::Vector2f &imgPoint, Eigen::Vector3f *nspPoint, bool distortion=true);
 
     /**
-     * Compute a point in image plane to camera coordinate. Make sure to call function InitNSPMap before this func if the param:distortion is true
+     * Compute a point in image plane to camera coordinate.
      * @param   imgPoint    [in]    point in image plane: Vector2f(x,y) (i.e., Vector2f(col,row))
      * @param   nspPoint    [out]   the output point in NSP.
      * @param   depth       [in]    the depth of the point.
      * @param   distortion  [in]    wether to use the distortion model, default is true.
      * @return  void 
     */
-    void ImgPoint2P3D(const Eigen::Vector2f &imgPoint, Eigen::Vector3f *point3D, const float &depth=1, bool distortion=true);
+    void ImgPoint2P3D(const Eigen::Vector2f &imgPoint, Eigen::Vector3f *point3D, float depth=1, bool distortion=true);
 
     /**
      * compute the NSP point from the point in camera coordinate
@@ -67,7 +63,7 @@ public:
      * @param   depth       [in]    the depth of the NSP point
      * @return void
     */
-    void NSP2P3D(const Eigen::Vector3f &pointNSP, Eigen::Vector3f *point3D, const float &depth);
+    void NSP2P3D(const Eigen::Vector3f &pointNSP, Eigen::Vector3f *point3D, float depth);
     
     /**
      * Compute a NSP point to a point2f in image plane.
@@ -93,11 +89,16 @@ public:
     /**
      * Print the camera's info
     */
-    void cameraInfo();
+    void CameraInfo();
 
     const int rows;
     const int cols;
 private:
+    /**
+     * Initialize NSPMapX, NSPMapY which Computes the ideal point coordinates (in normalized sensing plane, NSP) from the observed point coordinates.
+    */
+    void InitNSPMap();
+
     Eigen::Matrix3f cameraMatrix;
     RowVector5f distMatrix;
     cv::Mat map1;
