@@ -1,7 +1,7 @@
 /*
  * @Author: yyz
  * @Date: 2020-09-10 16:48:50
- * @LastEditTime: 2020-09-10 21:46:25
+ * @LastEditTime: 2020-09-11 15:01:40
  * @LastEditors: Please set LastEditors
  * @Description: Only for module test
  * @FilePath: /Event-SLAM-IO/test.h
@@ -158,15 +158,17 @@ void testCamera2(){
 
         Mat myRectify(264,320, CV_8UC1, Scalar(255));
 
+        Mat myDistort(264,320, CV_8UC1, Scalar(255));
+
         print("begin to transfer");
-        for (int i=0;i<264;++i){
-            for(int j=0;j<320;++j){
+        for (int y=0;y<264;++y){
+            for(int x=0;x<320;++x){
                 Vector3f nsp;
-                DVS.ImgPoint2NSP(Vector2f(j,i), &nsp, true);
+                DVS.ImgPoint2NSP(Vector2f(x,y), &nsp, false);
                 Vector2f dstPoint;
-                print("End ImgPoint2NSP", i*264+j);
+                // print("End ImgPoint2NSP", y*264+x);
                 DVS.NSP2ImgPoint(nsp, &dstPoint, true);
-                print("End NSP2ImgPoint", i*264+j);
+                // print("End NSP2ImgPoint", y*264+x);
 
                 int row = int(dstPoint[1]);
                 int col = int(dstPoint[0]);
@@ -174,17 +176,40 @@ void testCamera2(){
                     continue;
                 }
                 else{
-                    myRectify.at<uchar>(i,j) = img.at<uchar>(row,col);
-                    print(i,j,row,col,int(img.at<uchar>(row,col)));
+                    myRectify.at<uchar>(y,x) = img.at<uchar>(row,col);
+                    // print(y,x,row,col,int(img.at<uchar>(row,col)));
                 }
 
             }
         }
 
+        for (int y=0;y<264;++y){
+            for (int x=0;x<320;++x){
+                Vector3f NSP;
+                Vector2f dstPoint;
+                DVS.ImgPoint2NSP(Vector2f(x,y), &NSP, true);
+                DVS.NSP2ImgPoint(NSP, &dstPoint, false);
+                int row = dstPoint(1);
+                int col = dstPoint(0);
+
+                if (row<0||row>=264||col<0||col>=320){
+                    continue;
+                }
+                else{
+                    myDistort.at<uchar>(y,x) = myRectify.at<uchar>(row, col);
+                }
+            }
+        }
+
+
         imshow("before", img);
         imshow("cv::Rectify", rectified);
         imshow("yyz::Rectify test", myRectify);
-        waitKey(0);
+        imshow("yyz:distort-rebuild", myDistort);
+        if(waitKey(0)==27){
+            break;
+        }
+    
     }
     waitKey(0);
 

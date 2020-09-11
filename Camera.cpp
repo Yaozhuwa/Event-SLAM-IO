@@ -1,5 +1,13 @@
+/*
+ * @Author: yyz
+ * @Date: 2020-09-09 10:58:02
+ * @LastEditTime: 2020-09-11 15:02:35
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: /Event-SLAM-IO/Camera.cpp
+ */
 #include "Camera.h"
-
+#include "MyTools.h"
 using namespace cv;
 using namespace Eigen;
 using namespace std;
@@ -62,8 +70,8 @@ void Camera::InitNSPMap()
 
     for (int row=0; row<rows; ++row){
         for (int col=0; col<cols; ++col){
-            NSPMapX(row, col) = dstPointsVec[row*rows+col].x;
-            NSPMapY(row, col) = dstPointsVec[row*rows+col].y;
+            NSPMapX(row, col) = dstPointsVec[row*cols+col].x;
+            NSPMapY(row, col) = dstPointsVec[row*cols+col].y;
         }
     }
 
@@ -99,7 +107,7 @@ void Camera::NSP2P3D(const Eigen::Vector3f &pointNSP, Eigen::Vector3f *point3D, 
 
 void Camera::NSP2ImgPoint(const Eigen::Vector3f &pointNSP, Eigen::Vector2f *imgPoint, bool distortion){
     if (!distortion){
-        *imgPoint = (cameraMatrix * pointNSP).head<2>();
+        *imgPoint = (cameraMatrix * pointNSP).head<2>()/pointNSP[2];
     }
     else{
         Mat cameraMat, distMat, pointMat;
@@ -126,8 +134,10 @@ void Camera::P3D2ImgPoint(const Eigen::Vector3f &point3D, Eigen::Vector2f *imgPo
         eigen2cv(cameraMatrix, cameraMat);
         eigen2cv(distMatrix, distMat);
         eigen2cv(point3D, pointMat);
+        Mat rVec(3, 1, cv::DataType<double>::type, Scalar(0));
+        Mat tVec(3, 1, cv::DataType<double>::type, Scalar(0));
 
-        projectPoints(pointMat, noArray(), noArray(), cameraMat, distMat, imgPointsVec);
+        projectPoints(pointMat, rVec, tVec, cameraMat, distMat, imgPointsVec);
         (*imgPoint)[0] = imgPointsVec[0].x;
         (*imgPoint)[1] = imgPointsVec[0].y;
     }
