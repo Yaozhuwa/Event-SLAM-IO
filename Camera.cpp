@@ -1,7 +1,7 @@
 /*
  * @Author: yyz
  * @Date: 2020-09-09 10:58:02
- * @LastEditTime: 2020-09-11 15:27:48
+ * @LastEditTime: 2020-09-11 15:42:43
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /Event-SLAM-IO/Camera.cpp
@@ -13,7 +13,6 @@ using namespace std;
 
 void Camera::undistortion(Mat &src, Mat &dst, int interpolation)
 {
-    // std::cout<<"begin"<<std::endl;
     cv::remap(src, dst, map1, map2, interpolation);
 }
 

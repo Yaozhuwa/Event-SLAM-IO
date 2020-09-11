@@ -1,3 +1,11 @@
+/*
+ * @Author: yyz
+ * @Date: 2020-09-09 10:58:02
+ * @LastEditTime: 2020-09-11 15:35:39
+ * @LastEditors: Please set LastEditors
+ * @Description: Camera class
+ * @FilePath: /Event-SLAM-IO/Camera.h
+ */
 #ifndef CAMERA_H
 #define CAMERA_H
 #include<Eigen/Dense>

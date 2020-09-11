@@ -1,9 +1,9 @@
 /*
  * @Author: yyz
  * @Date: 2020-09-09 10:49:41
- * @LastEditTime: 2020-09-10 20:59:56
+ * @LastEditTime: 2020-09-11 15:41:28
  * @LastEditors: Please set LastEditors
- * @Description: My tools set.
+ * @Description: My tools set. A powerful timer and a print function likes python.
  * @FilePath: /Event-SLAM-IO/MyTools.h
  */
 #pragma once
